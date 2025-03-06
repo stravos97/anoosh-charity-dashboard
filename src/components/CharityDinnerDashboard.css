@@ -1,0 +1,331 @@
+/* CharityDinnerDashboard.css */
+
+/* General Layout */
+.dashboard-container {
+  padding: 2rem;
+  max-width: 72rem;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Header */
+.dashboard-header {
+  margin-bottom: 2.5rem;
+  text-align: center;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.dashboard-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #1e40af;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.025em;
+}
+
+.dashboard-subtitle {
+  color: #6b7280;
+  font-size: 1.125rem;
+}
+
+/* Section Headers */
+.section-header {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  color: #1e3a8a;
+  border-bottom: 2px solid #dbeafe;
+  padding-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+.section-header::before {
+  content: "";
+  display: inline-block;
+  width: 0.5rem;
+  height: 1.5rem;
+  background-color: #3b82f6;
+  margin-right: 0.75rem;
+  border-radius: 0.25rem;
+}
+
+/* Event Details */
+.event-details {
+  margin-bottom: 2.5rem;
+}
+
+.event-details-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .event-details-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .event-details-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.event-detail-card {
+  background-color: #f0f9ff;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-left: 4px solid #3b82f6;
+}
+
+.event-detail-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.detail-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.detail-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e3a8a;
+}
+
+/* Financial Summary */
+.financial-summary {
+  margin-bottom: 2.5rem;
+}
+
+.financial-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .financial-summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.financial-card {
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.2s;
+}
+
+.financial-card:hover {
+  transform: translateY(-3px);
+}
+
+.financial-card-profit {
+  background-color: #f0fdf4;
+  border-top: 4px solid #22c55e;
+}
+
+.financial-card-cost {
+  background-color: #fef2f2;
+  border-top: 4px solid #ef4444;
+}
+
+.financial-label {
+  font-size: 1rem;
+  color: #4b5563;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+.financial-value {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.financial-value-profit {
+  color: #16a34a;
+}
+
+.financial-value-cost {
+  color: #dc2626;
+}
+
+/* Tables */
+.table-container {
+  margin-bottom: 2.5rem;
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.data-table {
+  min-width: 100%;
+  background-color: white;
+  border-collapse: collapse;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.table-header {
+  background-color: #1e40af;
+  color: white;
+}
+
+.table-header th {
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+}
+
+.table-header th.text-left {
+  text-align: left;
+}
+
+.table-header th.text-right {
+  text-align: right;
+}
+
+.table-row-even {
+  background-color: #f9fafb;
+}
+
+.table-row-odd {
+  background-color: white;
+}
+
+.table-row-total {
+  background-color: #dbeafe;
+  font-weight: 700;
+}
+
+.table-cell {
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table-cell.text-right {
+  text-align: right;
+}
+
+.table-row-even:hover, .table-row-odd:hover {
+  background-color: #eff6ff;
+}
+
+/* Visualizations */
+.visualizations {
+  margin-bottom: 2.5rem;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .charts-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.chart-container {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.chart-container:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.chart-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #1e3a8a;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #dbeafe;
+}
+
+.bar-chart-container {
+  margin-top: 2rem;
+}
+
+/* Key Findings */
+.key-findings {
+  margin-bottom: 2rem;
+}
+
+.findings-container {
+  background-color: #f0f9ff;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-left: 4px solid #3b82f6;
+}
+
+.findings-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.findings-list li {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding-left: 1.75rem;
+  position: relative;
+}
+
+.findings-list li::before {
+  content: "•";
+  color: #3b82f6;
+  font-weight: bold;
+  font-size: 1.25rem;
+  position: absolute;
+  left: 0.5rem;
+}
+
+.finding-label {
+  font-weight: 700;
+  color: #1e3a8a;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .dashboard-container {
+    padding: 1.25rem;
+  }
+  
+  .dashboard-title {
+    font-size: 1.75rem;
+  }
+  
+  .financial-value {
+    font-size: 1.5rem;
+  }
+}
