@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import FixedCostsChart from './FixedCostsChart';
 import CategorySalesChart from './CategorySalesChart';
@@ -7,51 +7,112 @@ import WaterfallChart from './WaterfallChart';
 import './CharityDinnerDashboard.css';
 
 const CharityDinnerDashboard = () => {
-  // Event details directly from the Excel data
+  // Event details
   const eventDetails = {
     venue: "Co-Op Live Stadium",
     capacity: 25000,
-    ticketPrice: "£25",
+    ticketPrice: 25,
     estimatedAttendees: 16000,
-    entranceFeeRevenue: 400000,
-    predictedRevenue: "£625,000",
     duration: "4 Hours"
   };
 
-  // Sales data directly from the Excel table
-  const salesData = [
-    { category: "Snack", stock: 1000, sold: 200, unsold: 800, costPrice: 1, sellingPrice: 2, profit: 200, percentProfit: "8.9%", color: "#3b82f6" },
-    { category: "Drink", stock: 700, sold: 140, unsold: 560, costPrice: 1, sellingPrice: 3.5, profit: 350, percentProfit: "15.5%", color: "#10b981" },
-    { category: "T-shirt", stock: 180, sold: 18, unsold: 162, costPrice: 2, sellingPrice: 10, profit: 144, percentProfit: "6.4%", color: "#f59e0b" },
-    { category: "Toy", stock: 1200, sold: 120, unsold: 1080, costPrice: 0.5, sellingPrice: 3, profit: 300, percentProfit: "13.3%", color: "#ef4444" },
-    { category: "Magazine", stock: 300, sold: 120, unsold: 180, costPrice: 3.5, sellingPrice: 14, profit: 1260, percentProfit: "55.9%", color: "#8b5cf6" }
+  // Source data from the sales table
+  const salesTableData = [
+    { menu: "Snack", unitsPurchased: 1000, costPrice: 1.00, markupPercentage: 100, sellingPrice: 2.00, estimatedSalesPercentage: 20, color: "#3b82f6" },
+    { menu: "Drink", unitsPurchased: 700, costPrice: 1.00, markupPercentage: 250, sellingPrice: 3.50, estimatedSalesPercentage: 20, color: "#10b981" },
+    { menu: "T-shirt", unitsPurchased: 180, costPrice: 2.00, markupPercentage: 400, sellingPrice: 10.00, estimatedSalesPercentage: 10, color: "#f59e0b" },
+    { menu: "Toy", unitsPurchased: 1200, costPrice: 0.50, markupPercentage: 500, sellingPrice: 3.00, estimatedSalesPercentage: 10, color: "#ef4444" },
+    { menu: "Magazine", unitsPurchased: 300, costPrice: 3.50, markupPercentage: 300, sellingPrice: 14.00, estimatedSalesPercentage: 40, color: "#8b5cf6" }
   ];
 
-  // Fixed costs data directly from the Excel table
-  const fixedCostsData = [
-    { category: "Venue Hire", cost: 5000, percentage: "7.7%", color: "#3b82f6" },
-    { category: "Band Hire", cost: 50000, percentage: "76.9%", color: "#ef4444" },
-    { category: "Helpers/Workers", cost: 10000, percentage: "15.4%", color: "#10b981" }
+  // Source data for fixed costs
+  const fixedCostsTableData = [
+    { category: "Venue Hire", cost: 50000, color: "#3b82f6" },
+    { category: "Band Hire", cost: 5000, color: "#ef4444" },
+    { category: "Helpers/Workers", cost: 10000, color: "#10b981" }
   ];
 
-  // Revenue breakdown data
-  const revenueData = [
-    { name: "Entrance Fees", value: 400000, color: "#1e40af" },
-    { name: "Sales Profit", value: 2254, color: "#059669" }
-  ];
+  // Calculate all derived values from the source data
+  const {
+    processedSalesData,
+    salesProfit,
+    fixedCostsData,
+    fixedCostsTotal,
+    entranceFeeRevenue,
+    totalRevenue,
+    netProfit,
+    revenueData,
+    perAttendeeData
+  } = useMemo(() => {
+    // Process sales data
+    const processed = salesTableData.map(item => {
+      const unitsSold = Math.round(item.unitsPurchased * (item.estimatedSalesPercentage / 100));
+      const profitPerUnit = item.sellingPrice - item.costPrice;
+      const totalProfit = Math.round(unitsSold * profitPerUnit);
+      const unsoldStock = item.unitsPurchased - unitsSold;
+      
+      return {
+        category: item.menu,
+        stock: item.unitsPurchased,
+        sold: unitsSold,
+        unsold: unsoldStock,
+        costPrice: item.costPrice,
+        sellingPrice: item.sellingPrice,
+        profitPerUnit: profitPerUnit,
+        profit: totalProfit,
+        color: item.color
+      };
+    });
 
-  // Per attendee metrics
-  const perAttendeeData = [
-    { name: "Ticket Revenue", value: 25, color: "#3b82f6" },
-    { name: "Sales Revenue", value: 0.14, color: "#10b981" }
-  ];
+    // Calculate total sales profit
+    const totalSalesProfit = processed.reduce((sum, item) => sum + item.profit, 0);
+    
+    // Calculate percentages for each item
+    const processedWithPercentages = processed.map(item => ({
+      ...item,
+      percentProfit: `${((item.profit / totalSalesProfit) * 100).toFixed(1)}%`
+    }));
 
-  // Summary statistics calculated from the data
-  const salesProfit = 2254; // Sum of all profits from Excel
-  const fixedCostsTotal = 65000; // Sum of all fixed costs
-  const entranceFeeRevenue = 400000; // From Excel
-  const totalRevenue = salesProfit + entranceFeeRevenue;
-  const netProfit = totalRevenue - fixedCostsTotal;
+    // Process fixed costs
+    const totalFixedCosts = fixedCostsTableData.reduce((sum, item) => sum + item.cost, 0);
+    const processedFixedCosts = fixedCostsTableData.map(item => ({
+      ...item,
+      percentage: `${((item.cost / totalFixedCosts) * 100).toFixed(1)}%`
+    }));
+
+    // Calculate entrance fee revenue
+    const entranceFee = eventDetails.estimatedAttendees * eventDetails.ticketPrice;
+    
+    // Calculate total revenue
+    const totalRev = entranceFee + totalSalesProfit;
+    
+    // Calculate net profit
+    const netProf = totalRev - totalFixedCosts;
+
+    // Revenue breakdown data
+    const revData = [
+      { name: "Entrance Fees", value: entranceFee, color: "#1e40af" },
+      { name: "Sales Profit", value: totalSalesProfit, color: "#059669" }
+    ];
+
+    // Per attendee metrics
+    const perAttendee = [
+      { name: "Ticket Revenue", value: eventDetails.ticketPrice, color: "#3b82f6" },
+      { name: "Sales Revenue", value: +(totalSalesProfit / eventDetails.estimatedAttendees).toFixed(2), color: "#10b981" }
+    ];
+
+    return {
+      processedSalesData: processedWithPercentages,
+      salesProfit: totalSalesProfit,
+      fixedCostsData: processedFixedCosts,
+      fixedCostsTotal: totalFixedCosts,
+      entranceFeeRevenue: entranceFee,
+      totalRevenue: totalRev,
+      netProfit: netProf,
+      revenueData: revData,
+      perAttendeeData: perAttendee
+    };
+  }, [salesTableData, fixedCostsTableData, eventDetails]);
 
   return (
     <div className="dashboard-container">
@@ -79,7 +140,7 @@ const CharityDinnerDashboard = () => {
           </div>
           <div className="event-detail-card">
             <p className="detail-label">Ticket Price</p>
-            <p className="detail-value">{eventDetails.ticketPrice}</p>
+            <p className="detail-value">£{eventDetails.ticketPrice}</p>
           </div>
           <div className="event-detail-card">
             <p className="detail-label">Duration</p>
@@ -160,14 +221,14 @@ const CharityDinnerDashboard = () => {
         <FixedCostsChart fixedCostsData={fixedCostsData} />
         
         {/* Category Sales Chart */}
-        <CategorySalesChart salesData={salesData} />
+        <CategorySalesChart salesData={processedSalesData} />
         
         {/* Stock Utilization Chart */}
         <div className="bar-chart-container chart-container">
           <h3 className="chart-title">Stock Utilization by Category</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart
-              data={salesData}
+              data={processedSalesData}
               margin={{
                 top: 20,
                 right: 30,
@@ -219,77 +280,39 @@ const CharityDinnerDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              <tr className="table-row-even">
-                <td className="table-cell">Snack</td>
-                <td className="table-cell text-right">1,000</td>
-                <td className="table-cell text-right">1.00</td>
-                <td className="table-cell text-right">100%</td>
-                <td className="table-cell text-right">2.00</td>
-                <td className="table-cell text-right">1.00</td>
-                <td className="table-cell text-right">20%</td>
-                <td className="table-cell text-right">200</td>
-                <td className="table-cell text-right">200</td>
-                <td className="table-cell text-right">800</td>
-              </tr>
-              <tr className="table-row-odd">
-                <td className="table-cell">Drink</td>
-                <td className="table-cell text-right">700</td>
-                <td className="table-cell text-right">1.00</td>
-                <td className="table-cell text-right">250%</td>
-                <td className="table-cell text-right">3.50</td>
-                <td className="table-cell text-right">2.50</td>
-                <td className="table-cell text-right">20%</td>
-                <td className="table-cell text-right">140</td>
-                <td className="table-cell text-right">350</td>
-                <td className="table-cell text-right">560</td>
-              </tr>
-              <tr className="table-row-even">
-                <td className="table-cell">T-shirt</td>
-                <td className="table-cell text-right">180</td>
-                <td className="table-cell text-right">2.00</td>
-                <td className="table-cell text-right">400%</td>
-                <td className="table-cell text-right">10.00</td>
-                <td className="table-cell text-right">8.00</td>
-                <td className="table-cell text-right">10%</td>
-                <td className="table-cell text-right">18</td>
-                <td className="table-cell text-right">144</td>
-                <td className="table-cell text-right">162</td>
-              </tr>
-              <tr className="table-row-odd">
-                <td className="table-cell">Toy</td>
-                <td className="table-cell text-right">1,200</td>
-                <td className="table-cell text-right">0.50</td>
-                <td className="table-cell text-right">500%</td>
-                <td className="table-cell text-right">3.00</td>
-                <td className="table-cell text-right">2.50</td>
-                <td className="table-cell text-right">10%</td>
-                <td className="table-cell text-right">120</td>
-                <td className="table-cell text-right">300</td>
-                <td className="table-cell text-right">1,080</td>
-              </tr>
-              <tr className="table-row-even">
-                <td className="table-cell">Magazine</td>
-                <td className="table-cell text-right">300</td>
-                <td className="table-cell text-right">3.50</td>
-                <td className="table-cell text-right">300%</td>
-                <td className="table-cell text-right">14.00</td>
-                <td className="table-cell text-right">10.50</td>
-                <td className="table-cell text-right">40%</td>
-                <td className="table-cell text-right">120</td>
-                <td className="table-cell text-right">1,260</td>
-                <td className="table-cell text-right">180</td>
-              </tr>
+              {salesTableData.map((item, index) => {
+                const isEven = index % 2 === 0;
+                const unitsSold = Math.round(item.unitsPurchased * (item.estimatedSalesPercentage / 100));
+                const profitPerUnit = item.sellingPrice - item.costPrice;
+                const totalProfit = Math.round(unitsSold * profitPerUnit);
+                const unsoldStock = item.unitsPurchased - unitsSold;
+                
+                return (
+                  <tr key={item.menu} className={isEven ? "table-row-even" : "table-row-odd"}>
+                    <td className="table-cell">{item.menu}</td>
+                    <td className="table-cell text-right">{item.unitsPurchased.toLocaleString()}</td>
+                    <td className="table-cell text-right">{item.costPrice.toFixed(2)}</td>
+                    <td className="table-cell text-right">{item.markupPercentage}%</td>
+                    <td className="table-cell text-right">{item.sellingPrice.toFixed(2)}</td>
+                    <td className="table-cell text-right">{profitPerUnit.toFixed(2)}</td>
+                    <td className="table-cell text-right">{item.estimatedSalesPercentage}%</td>
+                    <td className="table-cell text-right">{unitsSold}</td>
+                    <td className="table-cell text-right">{totalProfit}</td>
+                    <td className="table-cell text-right">{unsoldStock}</td>
+                  </tr>
+                );
+              })}
               <tr className="table-row-total">
                 <td className="table-cell">Total</td>
-                <td className="table-cell text-right">3,380</td>
+                <td className="table-cell text-right">{salesTableData.reduce((sum, item) => sum + item.unitsPurchased, 0).toLocaleString()}</td>
                 <td className="table-cell"></td>
                 <td className="table-cell"></td>
                 <td className="table-cell"></td>
                 <td className="table-cell"></td>
                 <td className="table-cell"></td>
-                <td className="table-cell text-right">598</td>
-                <td className="table-cell text-right">£2,254</td>
-                <td className="table-cell text-right">2,782</td>
+                <td className="table-cell text-right">{processedSalesData.reduce((sum, item) => sum + item.sold, 0)}</td>
+                <td className="table-cell text-right">£{salesProfit.toLocaleString()}</td>
+                <td className="table-cell text-right">{processedSalesData.reduce((sum, item) => sum + item.unsold, 0)}</td>
               </tr>
             </tbody>
           </table>
@@ -308,21 +331,15 @@ const CharityDinnerDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              <tr className="table-row-even">
-                <td className="table-cell">Venue Hire</td>
-                <td className="table-cell text-right">£5,000</td>
-              </tr>
-              <tr className="table-row-odd">
-                <td className="table-cell">Band Hire</td>
-                <td className="table-cell text-right">£50,000</td>
-              </tr>
-              <tr className="table-row-even">
-                <td className="table-cell">Helpers/Workers</td>
-                <td className="table-cell text-right">£10,000</td>
-              </tr>
+              {fixedCostsTableData.map((item, index) => (
+                <tr key={item.category} className={index % 2 === 0 ? "table-row-even" : "table-row-odd"}>
+                  <td className="table-cell">{item.category}</td>
+                  <td className="table-cell text-right">£{item.cost.toLocaleString()}</td>
+                </tr>
+              ))}
               <tr className="table-row-total">
                 <td className="table-cell">Total</td>
-                <td className="table-cell text-right">£65,000</td>
+                <td className="table-cell text-right">£{fixedCostsTotal.toLocaleString()}</td>
               </tr>
             </tbody>
           </table>
@@ -334,12 +351,23 @@ const CharityDinnerDashboard = () => {
         <h2 className="section-header">Key Findings</h2>
         <div className="findings-container">
           <ul className="findings-list">
-            <li><span className="finding-label">Overall Financial Position:</span> The event shows a projected profit of £337,254 (Entrance fees £400,000 + Sales profit £2,254 - Fixed costs £65,000).</li>
-            <li><span className="finding-label">Revenue Structure:</span> Entrance fees (£400,000) represent 99.4% of total revenue, with sales profit (£2,254) contributing only 0.6%.</li>
-            <li><span className="finding-label">Attendance:</span> Expected attendance of 16,000 represents 64% of venue capacity (25,000).</li>
-            <li><span className="finding-label">Stock Utilization:</span> Only 17.7% of purchased stock is expected to be sold (598 out of 3,380 units).</li>
-            <li><span className="finding-label">Product Performance:</span> Magazines generate the highest profit at £1,260 (55.9% of total sales profit) despite representing only 8.9% of purchased stock.</li>
-            <li><span className="finding-label">Cost Structure:</span> Band hire (£50,000) represents 76.9% of all fixed costs but is well covered by entrance fee revenue.</li>
+            <li><span className="finding-label">Overall Financial Position:</span> The event shows a projected profit of £{netProfit.toLocaleString()} (Entrance fees £{entranceFeeRevenue.toLocaleString()} + Sales profit £{salesProfit.toLocaleString()} - Fixed costs £{fixedCostsTotal.toLocaleString()}).</li>
+            <li><span className="finding-label">Revenue Structure:</span> Entrance fees (£{entranceFeeRevenue.toLocaleString()}) represent {((entranceFeeRevenue / totalRevenue) * 100).toFixed(1)}% of total revenue, with sales profit (£{salesProfit.toLocaleString()}) contributing only {((salesProfit / totalRevenue) * 100).toFixed(1)}%.</li>
+            <li><span className="finding-label">Attendance:</span> Expected attendance of {eventDetails.estimatedAttendees.toLocaleString()} represents {((eventDetails.estimatedAttendees / eventDetails.capacity) * 100).toFixed(0)}% of venue capacity ({eventDetails.capacity.toLocaleString()}).</li>
+            <li><span className="finding-label">Stock Utilization:</span> Only {((processedSalesData.reduce((sum, item) => sum + item.sold, 0) / salesTableData.reduce((sum, item) => sum + item.unitsPurchased, 0)) * 100).toFixed(1)}% of purchased stock is expected to be sold ({processedSalesData.reduce((sum, item) => sum + item.sold, 0)} out of {salesTableData.reduce((sum, item) => sum + item.unitsPurchased, 0).toLocaleString()} units).</li>
+            {(() => {
+              const highestProfitItem = [...processedSalesData].sort((a, b) => b.profit - a.profit)[0];
+              const stockPercentage = ((highestProfitItem.stock / salesTableData.reduce((sum, item) => sum + item.unitsPurchased, 0)) * 100).toFixed(1);
+              return (
+                <li><span className="finding-label">Product Performance:</span> {highestProfitItem.category}s generate the highest profit at £{highestProfitItem.profit.toLocaleString()} ({highestProfitItem.percentProfit} of total sales profit) despite representing only {stockPercentage}% of purchased stock.</li>
+              );
+            })()}
+            {(() => {
+              const highestCostItem = [...fixedCostsData].sort((a, b) => b.cost - a.cost)[0];
+              return (
+                <li><span className="finding-label">Cost Structure:</span> {highestCostItem.category} (£{highestCostItem.cost.toLocaleString()}) represents {highestCostItem.percentage} of all fixed costs but is well covered by entrance fee revenue.</li>
+              );
+            })()}
           </ul>
         </div>
       </div>

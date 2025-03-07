@@ -3,10 +3,13 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recha
 
 const FixedCostsChart = ({ fixedCostsData }) => {
   const COLORS = ['#FF9800', '#E91E63', '#009688'];
+  
+  // Calculate total fixed costs
+  const totalFixedCosts = fixedCostsData.reduce((sum, item) => sum + item.cost, 0);
 
   return (
     <div className="chart-container">
-      <h3 className="chart-title">Fixed Costs Breakdown (£65,000)</h3>
+      <h3 className="chart-title">Fixed Costs Breakdown (£{totalFixedCosts.toLocaleString()})</h3>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
