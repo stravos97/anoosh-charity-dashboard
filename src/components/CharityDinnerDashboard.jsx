@@ -1,37 +1,53 @@
 import React from 'react';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ComposedChart } from 'recharts';
 import './CharityDinnerDashboard.css';
 
 const CharityDinnerDashboard = () => {
-  // Event details directly from the data
+  // Event details directly from the Excel data
   const eventDetails = {
     venue: "Co-Op Live Stadium",
     capacity: 25000,
     ticketPrice: "£25",
+    estimatedAttendees: 16000,
+    entranceFeeRevenue: 400000,
     predictedRevenue: "£625,000",
     duration: "4 Hours"
   };
 
-  // Sales data directly from the table
+  // Sales data directly from the Excel table
   const salesData = [
-    { category: "Snack", stock: 1000, sold: 1000, costPrice: 1, sellingPrice: 2, profit: 1000, percentProfit: "8.1%", color: "#3b82f6" },
-    { category: "Drink", stock: 500, sold: 500, costPrice: 1, sellingPrice: 3.5, profit: 1000, percentProfit: "8.1%", color: "#10b981" },
-    { category: "T-shirt", stock: 150, sold: 150, costPrice: 2, sellingPrice: 10, profit: 1250, percentProfit: "10.1%", color: "#f59e0b" },
-    { category: "Toy", stock: 1000, sold: 1000, costPrice: 0.5, sellingPrice: 3, profit: 1200, percentProfit: "9.7%", color: "#ef4444" },
-    { category: "Magazine", stock: 750, sold: 750, costPrice: 3.5, sellingPrice: 14, profit: 7875, percentProfit: "63.9%", color: "#8b5cf6" }
+    { category: "Snack", stock: 1000, sold: 200, unsold: 800, costPrice: 1, sellingPrice: 2, profit: 200, percentProfit: "8.9%", color: "#3b82f6" },
+    { category: "Drink", stock: 700, sold: 140, unsold: 560, costPrice: 1, sellingPrice: 3.5, profit: 350, percentProfit: "15.5%", color: "#10b981" },
+    { category: "T-shirt", stock: 180, sold: 18, unsold: 162, costPrice: 2, sellingPrice: 10, profit: 144, percentProfit: "6.4%", color: "#f59e0b" },
+    { category: "Toy", stock: 1200, sold: 120, unsold: 1080, costPrice: 0.5, sellingPrice: 3, profit: 300, percentProfit: "13.3%", color: "#ef4444" },
+    { category: "Magazine", stock: 300, sold: 120, unsold: 180, costPrice: 3.5, sellingPrice: 14, profit: 1260, percentProfit: "55.9%", color: "#8b5cf6" }
   ];
 
-  // Fixed costs data directly from the table
+  // Fixed costs data directly from the Excel table
   const fixedCostsData = [
     { category: "Venue Hire", cost: 5000, percentage: "7.7%", color: "#3b82f6" },
     { category: "Band Hire", cost: 50000, percentage: "76.9%", color: "#ef4444" },
     { category: "Helpers/Workers", cost: 10000, percentage: "15.4%", color: "#10b981" }
   ];
 
+  // Revenue breakdown data
+  const revenueData = [
+    { name: "Entrance Fees", value: 400000, color: "#1e40af" },
+    { name: "Sales Profit", value: 2254, color: "#059669" }
+  ];
+
+  // Per attendee metrics
+  const perAttendeeData = [
+    { name: "Ticket Revenue", value: 25, color: "#3b82f6" },
+    { name: "Sales Revenue", value: 0.14, color: "#10b981" }
+  ];
+
   // Summary statistics calculated from the data
-  const totalProfit = 12325; // Sum of all profits: 1000+1000+1250+1200+7875
-  const fixedCostsTotal = 65000; // Sum of all fixed costs: 5000+50000+10000
-  const netProfit = totalProfit - fixedCostsTotal;
+  const salesProfit = 2254; // Sum of all profits from Excel
+  const fixedCostsTotal = 65000; // Sum of all fixed costs
+  const entranceFeeRevenue = 400000; // From Excel
+  const totalRevenue = salesProfit + entranceFeeRevenue;
+  const netProfit = totalRevenue - fixedCostsTotal;
 
   return (
     <div className="dashboard-container">
@@ -54,12 +70,12 @@ const CharityDinnerDashboard = () => {
             <p className="detail-value">{eventDetails.capacity.toLocaleString()}</p>
           </div>
           <div className="event-detail-card">
-            <p className="detail-label">Ticket Price</p>
-            <p className="detail-value">{eventDetails.ticketPrice}</p>
+            <p className="detail-label">Est. Attendees</p>
+            <p className="detail-value">{eventDetails.estimatedAttendees.toLocaleString()}</p>
           </div>
           <div className="event-detail-card">
-            <p className="detail-label">Predicted Revenue</p>
-            <p className="detail-value">{eventDetails.predictedRevenue}</p>
+            <p className="detail-label">Ticket Price</p>
+            <p className="detail-value">{eventDetails.ticketPrice}</p>
           </div>
           <div className="event-detail-card">
             <p className="detail-label">Duration</p>
@@ -73,8 +89,12 @@ const CharityDinnerDashboard = () => {
         <h2 className="section-header">Financial Summary</h2>
         <div className="financial-summary-grid">
           <div className="financial-card financial-card-profit">
-            <p className="financial-label">Total Sales Profit</p>
-            <p className="financial-value financial-value-profit">£{totalProfit.toLocaleString()}</p>
+            <p className="financial-label">Entrance Fee Revenue</p>
+            <p className="financial-value financial-value-profit">£{entranceFeeRevenue.toLocaleString()}</p>
+          </div>
+          <div className="financial-card financial-card-profit">
+            <p className="financial-label">Sales Profit</p>
+            <p className="financial-value financial-value-profit">£{salesProfit.toLocaleString()}</p>
           </div>
           <div className="financial-card financial-card-cost">
             <p className="financial-label">Total Fixed Costs</p>
@@ -89,71 +109,90 @@ const CharityDinnerDashboard = () => {
         </div>
       </div>
 
-      {/* Charts Section - Moved up for better visual flow */}
+      {/* Charts Section */}
       <div className="visualizations">
         <h2 className="section-header">Performance Visualizations</h2>
 
         <div className="charts-grid">
-          {/* Sales Profit Distribution Pie Chart */}
+          {/* Revenue Breakdown Pie Chart */}
           <div className="chart-container">
-            <h3 className="chart-title">Sales Profit Distribution</h3>
+            <h3 className="chart-title">Revenue Breakdown</h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={salesData}
+                  data={revenueData}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
-                  label={({ name, percent, value }) => `${name}: ${(percent * 100).toFixed(1)}%`}
-                  outerRadius={100}
-                  innerRadius={60}
+                  labelLine={true}
+                  label={({ name, value, percent }) => 
+                    `£${value.toLocaleString()} (${(percent * 100).toFixed(1)}%)`
+                  }
+                  outerRadius={120}
+                  innerRadius={70}
                   fill="#8884d8"
-                  dataKey="profit"
-                  nameKey="category"
-                  paddingAngle={2}
+                  dataKey="value"
+                  nameKey="name"
+                  paddingAngle={4}
                 >
-                  {salesData.map((entry) => (
-                    <Cell key={`cell-${entry.category}`} fill={entry.color} />
+                  {revenueData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => `£${value.toLocaleString()}`} />
-                <Legend layout="vertical" verticalAlign="middle" align="right" />
+                <Tooltip 
+                  formatter={(value) => `£${value.toLocaleString()}`}
+                  contentStyle={{ backgroundColor: '#f9fafb', borderRadius: '0.5rem', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                />
+                <Legend 
+                  layout="horizontal" 
+                  verticalAlign="bottom" 
+                  align="center"
+                  formatter={(value, entry) => {
+                    const { payload } = entry;
+                    return `${value}: £${payload.value.toLocaleString()} (${((payload.value / (revenueData[0].value + revenueData[1].value)) * 100).toFixed(1)}%)`;
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
 
-          {/* Fixed Costs Distribution Pie Chart */}
+          {/* Venue Capacity Utilization */}
           <div className="chart-container">
-            <h3 className="chart-title">Fixed Costs Distribution</h3>
+            <h3 className="chart-title">Venue Capacity Utilization</h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={fixedCostsData}
+                  data={[
+                    { name: "Expected Attendees", value: eventDetails.estimatedAttendees, color: "#3b82f6" },
+                    { name: "Unused Capacity", value: eventDetails.capacity - eventDetails.estimatedAttendees, color: "#94a3b8" }
+                  ]}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
                   label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
                   outerRadius={100}
-                  innerRadius={60}
+                  innerRadius={0}
                   fill="#8884d8"
-                  dataKey="cost"
-                  nameKey="category"
-                  paddingAngle={2}
+                  dataKey="value"
+                  nameKey="name"
+                  paddingAngle={0}
                 >
-                  {fixedCostsData.map((entry) => (
-                    <Cell key={`cell-${entry.category}`} fill={entry.color} />
+                  {[
+                    { name: "Expected Attendees", value: eventDetails.estimatedAttendees, color: "#3b82f6" },
+                    { name: "Unused Capacity", value: eventDetails.capacity - eventDetails.estimatedAttendees, color: "#94a3b8" }
+                  ].map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => `£${value.toLocaleString()}`} />
+                <Tooltip formatter={(value) => `${value.toLocaleString()} people`} />
                 <Legend layout="vertical" verticalAlign="middle" align="right" />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Items Sold Bar Chart */}
+        {/* Stock Utilization Chart */}
         <div className="bar-chart-container chart-container">
-          <h3 className="chart-title">Items Sold by Category</h3>
+          <h3 className="chart-title">Stock Utilization by Category</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart
               data={salesData}
@@ -163,48 +202,100 @@ const CharityDinnerDashboard = () => {
                 left: 20,
                 bottom: 20,
               }}
+              stackOffset="expand"
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis dataKey="category" tick={{ fill: '#4b5563' }} />
               <YAxis tick={{ fill: '#4b5563' }} />
               <Tooltip
-                formatter={(value, name) => [value.toLocaleString(), name === "sold" ? "Units Sold" : name]}
+                formatter={(value, name) => [value.toLocaleString(), name === "sold" ? "Units Sold" : "Unsold Units"]}
                 contentStyle={{ backgroundColor: '#f9fafb', borderRadius: '0.5rem', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
               />
               <Legend />
-              <Bar dataKey="sold" name="Units Sold" radius={[4, 4, 0, 0]}>
-                {salesData.map((entry) => (
-                  <Cell key={`cell-${entry.category}`} fill={entry.color} />
-                ))}
-              </Bar>
+              <Bar dataKey="sold" name="Units Sold" stackId="a" fill="#10b981" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="unsold" name="Unsold Units" stackId="a" fill="#94a3b8" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Profit per Item Bar Chart */}
+        {/* Cost Recovery Analysis */}
         <div className="bar-chart-container chart-container">
-          <h3 className="chart-title">Price Comparison by Item (£)</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart
-              data={salesData}
+          <h3 className="chart-title">Cost Recovery Analysis (£)</h3>
+          <div className="chart-subtitle">
+            Cost Recovery Ratio: {((totalRevenue / fixedCostsTotal) * 100).toFixed(1)}% | Profit Margin: {((netProfit / totalRevenue) * 100).toFixed(1)}%
+          </div>
+          <ResponsiveContainer width="100%" height={350}>
+            <ComposedChart
+              data={[
+                { 
+                  name: "Fixed Costs", 
+                  costs: fixedCostsTotal, 
+                  revenue: 0, 
+                  profit: 0,
+                  description: `£${fixedCostsTotal.toLocaleString()}`
+                },
+                { 
+                  name: "Entrance Fees", 
+                  costs: 0, 
+                  revenue: entranceFeeRevenue, 
+                  profit: 0,
+                  description: `£${entranceFeeRevenue.toLocaleString()} (${((entranceFeeRevenue / totalRevenue) * 100).toFixed(1)}% of revenue)`
+                },
+                { 
+                  name: "Sales Profit", 
+                  costs: 0, 
+                  revenue: salesProfit, 
+                  profit: 0,
+                  description: `£${salesProfit.toLocaleString()} (${((salesProfit / totalRevenue) * 100).toFixed(1)}% of revenue)`
+                },
+                { 
+                  name: "Net Profit", 
+                  costs: 0, 
+                  revenue: 0, 
+                  profit: netProfit,
+                  description: `£${netProfit.toLocaleString()}`
+                }
+              ]}
               margin={{
-                top: 20,
+                top: 30,
                 right: 30,
-                left: 20,
-                bottom: 20,
+                left: 30,
+                bottom: 30,
               }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="category" tick={{ fill: '#4b5563' }} />
-              <YAxis tick={{ fill: '#4b5563' }} />
-              <Tooltip
-                formatter={(value) => `£${value}`}
-                contentStyle={{ backgroundColor: '#f9fafb', borderRadius: '0.5rem', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+              <XAxis 
+                dataKey="name" 
+                tick={{ fill: '#4b5563' }}
+                tickLine={false}
               />
-              <Legend />
-              <Bar dataKey="sellingPrice" name="Selling Price (£)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="costPrice" name="Cost Price (£)" fill="#10b981" radius={[4, 4, 0, 0]} />
-            </BarChart>
+              <YAxis 
+                tick={{ fill: '#4b5563' }}
+                tickFormatter={(value) => `£${value >= 1000 ? (value/1000) + 'k' : value}`}
+              />
+              <Tooltip
+                formatter={(value, name, props) => {
+                  return [`£${value.toLocaleString()}`, name];
+                }}
+                labelFormatter={(label, props) => {
+                  return [label, props[0].payload.description];
+                }}
+                contentStyle={{ 
+                  backgroundColor: '#f9fafb', 
+                  borderRadius: '0.5rem', 
+                  border: 'none', 
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                  padding: '10px'
+                }}
+              />
+              <Legend 
+                verticalAlign="top"
+                wrapperStyle={{ paddingBottom: '10px' }}
+              />
+              <Bar dataKey="costs" name="Costs" fill="#ef4444" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="revenue" name="Revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="profit" name="Net Profit" fill="#10b981" radius={[4, 4, 0, 0]} />
+            </ComposedChart>
           </ResponsiveContainer>
         </div>
       </div>
@@ -217,89 +308,89 @@ const CharityDinnerDashboard = () => {
             <thead>
               <tr className="table-header">
                 <th className="text-left">Menu</th>
+                <th className="text-right">Units Purchased</th>
                 <th className="text-right">Cost Price (£)</th>
                 <th className="text-right">Markup Percentage</th>
                 <th className="text-right">Selling Price (£)</th>
                 <th className="text-right">Profit per Unit (£)</th>
                 <th className="text-right">Estimated Sales</th>
+                <th className="text-right">Units Sold</th>
                 <th className="text-right">Total Profit (£)</th>
-                <th className="text-right">Stock Sold</th>
                 <th className="text-right">Unsold Stock</th>
-                <th className="text-right">Stock</th>
               </tr>
             </thead>
             <tbody>
               <tr className="table-row-even">
                 <td className="table-cell">Snack</td>
-                <td className="table-cell text-right">1</td>
-                <td className="table-cell text-right">1</td>
-                <td className="table-cell text-right">2</td>
-                <td className="table-cell text-right">1</td>
-                <td className="table-cell text-right">0.2</td>
-                <td className="table-cell text-right">1000</td>
-                <td className="table-cell text-right">1000</td>
-                <td className="table-cell text-right">0</td>
-                <td className="table-cell text-right">1000</td>
+                <td className="table-cell text-right">1,000</td>
+                <td className="table-cell text-right">1.00</td>
+                <td className="table-cell text-right">100%</td>
+                <td className="table-cell text-right">2.00</td>
+                <td className="table-cell text-right">1.00</td>
+                <td className="table-cell text-right">20%</td>
+                <td className="table-cell text-right">200</td>
+                <td className="table-cell text-right">200</td>
+                <td className="table-cell text-right">800</td>
               </tr>
               <tr className="table-row-odd">
                 <td className="table-cell">Drink</td>
-                <td className="table-cell text-right">1</td>
-                <td className="table-cell text-right">2.5</td>
-                <td className="table-cell text-right">3.5</td>
-                <td className="table-cell text-right">2.5</td>
-                <td className="table-cell text-right">0.15</td>
-                <td className="table-cell text-right">1000</td>
-                <td className="table-cell text-right">500</td>
-                <td className="table-cell text-right">0</td>
-                <td className="table-cell text-right">500</td>
+                <td className="table-cell text-right">700</td>
+                <td className="table-cell text-right">1.00</td>
+                <td className="table-cell text-right">250%</td>
+                <td className="table-cell text-right">3.50</td>
+                <td className="table-cell text-right">2.50</td>
+                <td className="table-cell text-right">20%</td>
+                <td className="table-cell text-right">140</td>
+                <td className="table-cell text-right">350</td>
+                <td className="table-cell text-right">560</td>
               </tr>
               <tr className="table-row-even">
                 <td className="table-cell">T-shirt</td>
-                <td className="table-cell text-right">2</td>
-                <td className="table-cell text-right">4</td>
-                <td className="table-cell text-right">10</td>
-                <td className="table-cell text-right">8</td>
-                <td className="table-cell text-right">0.1</td>
-                <td className="table-cell text-right">1250</td>
-                <td className="table-cell text-right">150</td>
-                <td className="table-cell text-right">0</td>
-                <td className="table-cell text-right">150</td>
+                <td className="table-cell text-right">180</td>
+                <td className="table-cell text-right">2.00</td>
+                <td className="table-cell text-right">400%</td>
+                <td className="table-cell text-right">10.00</td>
+                <td className="table-cell text-right">8.00</td>
+                <td className="table-cell text-right">10%</td>
+                <td className="table-cell text-right">18</td>
+                <td className="table-cell text-right">144</td>
+                <td className="table-cell text-right">162</td>
               </tr>
               <tr className="table-row-odd">
                 <td className="table-cell">Toy</td>
-                <td className="table-cell text-right">0.5</td>
-                <td className="table-cell text-right">5</td>
-                <td className="table-cell text-right">3</td>
-                <td className="table-cell text-right">2.5</td>
-                <td className="table-cell text-right">0.1</td>
-                <td className="table-cell text-right">1200</td>
-                <td className="table-cell text-right">1000</td>
-                <td className="table-cell text-right">0</td>
-                <td className="table-cell text-right">1000</td>
+                <td className="table-cell text-right">1,200</td>
+                <td className="table-cell text-right">0.50</td>
+                <td className="table-cell text-right">500%</td>
+                <td className="table-cell text-right">3.00</td>
+                <td className="table-cell text-right">2.50</td>
+                <td className="table-cell text-right">10%</td>
+                <td className="table-cell text-right">120</td>
+                <td className="table-cell text-right">300</td>
+                <td className="table-cell text-right">1,080</td>
               </tr>
               <tr className="table-row-even">
                 <td className="table-cell">Magazine</td>
-                <td className="table-cell text-right">3.5</td>
-                <td className="table-cell text-right">3</td>
-                <td className="table-cell text-right">14</td>
-                <td className="table-cell text-right">10.5</td>
-                <td className="table-cell text-right">0.35</td>
-                <td className="table-cell text-right">7875</td>
-                <td className="table-cell text-right">750</td>
-                <td className="table-cell text-right">0</td>
-                <td className="table-cell text-right">750</td>
+                <td className="table-cell text-right">300</td>
+                <td className="table-cell text-right">3.50</td>
+                <td className="table-cell text-right">300%</td>
+                <td className="table-cell text-right">14.00</td>
+                <td className="table-cell text-right">10.50</td>
+                <td className="table-cell text-right">40%</td>
+                <td className="table-cell text-right">120</td>
+                <td className="table-cell text-right">1,260</td>
+                <td className="table-cell text-right">180</td>
               </tr>
               <tr className="table-row-total">
                 <td className="table-cell">Total</td>
+                <td className="table-cell text-right">3,380</td>
                 <td className="table-cell"></td>
                 <td className="table-cell"></td>
                 <td className="table-cell"></td>
                 <td className="table-cell"></td>
                 <td className="table-cell"></td>
-                <td className="table-cell text-right">£12,325</td>
-                <td className="table-cell text-right">3,400</td>
-                <td className="table-cell text-right">0</td>
-                <td className="table-cell text-right">3,400</td>
+                <td className="table-cell text-right">598</td>
+                <td className="table-cell text-right">£2,254</td>
+                <td className="table-cell text-right">2,782</td>
               </tr>
             </tbody>
           </table>
@@ -344,11 +435,12 @@ const CharityDinnerDashboard = () => {
         <h2 className="section-header">Key Findings</h2>
         <div className="findings-container">
           <ul className="findings-list">
-            <li><span className="finding-label">Overall Financial Position:</span> The event currently shows a projected loss of £52,675 (Sales profit £12,325 - Fixed costs £65,000).</li>
-            <li><span className="finding-label">Cost Structure:</span> Band hire (£50,000) represents 76.9% of all fixed costs.</li>
-            <li><span className="finding-label">Profit Breakdown:</span> Magazines generate the highest profit at £7,875 (63.9% of total sales profit).</li>
-            <li><span className="finding-label">Product Mix:</span> Consider focusing more on high-margin items like Magazines (£10.5 profit per unit) and T-shirts (£8 profit per unit).</li>
-            <li><span className="finding-label">Ticket Revenue:</span> With 25,000 capacity at £25 per ticket, the predicted revenue of £625,000 should be sufficient to cover costs if attendance is high.</li>
+            <li><span className="finding-label">Overall Financial Position:</span> The event shows a projected profit of £337,254 (Entrance fees £400,000 + Sales profit £2,254 - Fixed costs £65,000).</li>
+            <li><span className="finding-label">Revenue Structure:</span> Entrance fees (£400,000) represent 99.4% of total revenue, with sales profit (£2,254) contributing only 0.6%.</li>
+            <li><span className="finding-label">Attendance:</span> Expected attendance of 16,000 represents 64% of venue capacity (25,000).</li>
+            <li><span className="finding-label">Stock Utilization:</span> Only 17.7% of purchased stock is expected to be sold (598 out of 3,380 units).</li>
+            <li><span className="finding-label">Product Performance:</span> Magazines generate the highest profit at £1,260 (55.9% of total sales profit) despite representing only 8.9% of purchased stock.</li>
+            <li><span className="finding-label">Cost Structure:</span> Band hire (£50,000) represents 76.9% of all fixed costs but is well covered by entrance fee revenue.</li>
           </ul>
         </div>
       </div>
