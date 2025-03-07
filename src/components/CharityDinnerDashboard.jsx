@@ -1,5 +1,9 @@
 import React from 'react';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ComposedChart } from 'recharts';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import FixedCostsChart from './FixedCostsChart';
+import CategorySalesChart from './CategorySalesChart';
+import RevenueStructureChart from './RevenueStructureChart';
+import WaterfallChart from './WaterfallChart';
 import './CharityDinnerDashboard.css';
 
 const CharityDinnerDashboard = () => {
@@ -114,46 +118,8 @@ const CharityDinnerDashboard = () => {
         <h2 className="section-header">Performance Visualizations</h2>
 
         <div className="charts-grid">
-          {/* Revenue Breakdown Pie Chart */}
-          <div className="chart-container">
-            <h3 className="chart-title">Revenue Breakdown</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={revenueData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={true}
-                  label={({ name, value, percent }) => 
-                    `£${value.toLocaleString()} (${(percent * 100).toFixed(1)}%)`
-                  }
-                  outerRadius={120}
-                  innerRadius={70}
-                  fill="#8884d8"
-                  dataKey="value"
-                  nameKey="name"
-                  paddingAngle={4}
-                >
-                  {revenueData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  formatter={(value) => `£${value.toLocaleString()}`}
-                  contentStyle={{ backgroundColor: '#f9fafb', borderRadius: '0.5rem', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-                />
-                <Legend 
-                  layout="horizontal" 
-                  verticalAlign="bottom" 
-                  align="center"
-                  formatter={(value, entry) => {
-                    const { payload } = entry;
-                    return `${value}: £${payload.value.toLocaleString()} (${((payload.value / (revenueData[0].value + revenueData[1].value)) * 100).toFixed(1)}%)`;
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+          {/* Revenue Structure Chart */}
+          <RevenueStructureChart revenueData={revenueData} totalRevenue={totalRevenue} />
 
           {/* Venue Capacity Utilization */}
           <div className="chart-container">
@@ -190,6 +156,12 @@ const CharityDinnerDashboard = () => {
           </div>
         </div>
 
+        {/* Fixed Costs Chart */}
+        <FixedCostsChart fixedCostsData={fixedCostsData} />
+        
+        {/* Category Sales Chart */}
+        <CategorySalesChart salesData={salesData} />
+        
         {/* Stock Utilization Chart */}
         <div className="bar-chart-container chart-container">
           <h3 className="chart-title">Stock Utilization by Category</h3>
@@ -218,86 +190,13 @@ const CharityDinnerDashboard = () => {
           </ResponsiveContainer>
         </div>
 
-        {/* Cost Recovery Analysis */}
-        <div className="bar-chart-container chart-container">
-          <h3 className="chart-title">Cost Recovery Analysis (£)</h3>
-          <div className="chart-subtitle">
-            Cost Recovery Ratio: {((totalRevenue / fixedCostsTotal) * 100).toFixed(1)}% | Profit Margin: {((netProfit / totalRevenue) * 100).toFixed(1)}%
-          </div>
-          <ResponsiveContainer width="100%" height={350}>
-            <ComposedChart
-              data={[
-                { 
-                  name: "Fixed Costs", 
-                  costs: fixedCostsTotal, 
-                  revenue: 0, 
-                  profit: 0,
-                  description: `£${fixedCostsTotal.toLocaleString()}`
-                },
-                { 
-                  name: "Entrance Fees", 
-                  costs: 0, 
-                  revenue: entranceFeeRevenue, 
-                  profit: 0,
-                  description: `£${entranceFeeRevenue.toLocaleString()} (${((entranceFeeRevenue / totalRevenue) * 100).toFixed(1)}% of revenue)`
-                },
-                { 
-                  name: "Sales Profit", 
-                  costs: 0, 
-                  revenue: salesProfit, 
-                  profit: 0,
-                  description: `£${salesProfit.toLocaleString()} (${((salesProfit / totalRevenue) * 100).toFixed(1)}% of revenue)`
-                },
-                { 
-                  name: "Net Profit", 
-                  costs: 0, 
-                  revenue: 0, 
-                  profit: netProfit,
-                  description: `£${netProfit.toLocaleString()}`
-                }
-              ]}
-              margin={{
-                top: 30,
-                right: 30,
-                left: 30,
-                bottom: 30,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis 
-                dataKey="name" 
-                tick={{ fill: '#4b5563' }}
-                tickLine={false}
-              />
-              <YAxis 
-                tick={{ fill: '#4b5563' }}
-                tickFormatter={(value) => `£${value >= 1000 ? (value/1000) + 'k' : value}`}
-              />
-              <Tooltip
-                formatter={(value, name, props) => {
-                  return [`£${value.toLocaleString()}`, name];
-                }}
-                labelFormatter={(label, props) => {
-                  return [label, props[0].payload.description];
-                }}
-                contentStyle={{ 
-                  backgroundColor: '#f9fafb', 
-                  borderRadius: '0.5rem', 
-                  border: 'none', 
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                  padding: '10px'
-                }}
-              />
-              <Legend 
-                verticalAlign="top"
-                wrapperStyle={{ paddingBottom: '10px' }}
-              />
-              <Bar dataKey="costs" name="Costs" fill="#ef4444" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="revenue" name="Revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="profit" name="Net Profit" fill="#10b981" radius={[4, 4, 0, 0]} />
-            </ComposedChart>
-          </ResponsiveContainer>
-        </div>
+        {/* Waterfall Chart */}
+        <WaterfallChart 
+          entranceFeeRevenue={entranceFeeRevenue} 
+          salesProfit={salesProfit} 
+          fixedCostsTotal={fixedCostsTotal} 
+          netProfit={netProfit} 
+        />
       </div>
 
       {/* Sales Data Table */}
