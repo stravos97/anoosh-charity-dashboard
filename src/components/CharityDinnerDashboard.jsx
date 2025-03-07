@@ -27,8 +27,8 @@ const CharityDinnerDashboard = () => {
 
   // Source data for fixed costs
   const fixedCostsTableData = [
-    { category: "Venue Hire", cost: 50000, color: "#3b82f6" },
-    { category: "Band Hire", cost: 5000, color: "#ef4444" },
+    { category: "Venue Hire", cost: 5000, color: "#3b82f6" },
+    { category: "Band Hire", cost: 50000, color: "#ef4444" },
     { category: "Helpers/Workers", cost: 10000, color: "#10b981" }
   ];
 
